@@ -1,4 +1,4 @@
-# image-automation-template
+# repo-template
 
 Used as a template for creating new repositories. Click the create repo button and name the new repository the same as your application. We want to consistently use the same naming everywhere for clarity.
 Where to start
