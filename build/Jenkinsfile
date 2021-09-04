@@ -1,1 +1,49 @@
+def call(String cronFormat, agentLabel = "slave") {
+    pipeline {
+        agent { label agent Label
+        }
+        options {
+            buildDiscarder logRotator (artifactDaysToKeepStr: ' ', artifactNumToKeepStr: ' ', daysToKeepStr: '7', numToKeepStr: '5')
+        }
 
+        triggers {
+            cron(cronFormat)
+        }
+
+        stages {
+            stage ('Set Git credentials') {
+                when { 
+                    branch 'master'
+                }
+
+              steps {
+                  withCredentials (bindings: [usernamePassword(credentialsId: 'alm-github', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT PASSWORD')]) {
+                      sh "git config --global credential.username ${GIT_USERNAME}" 
+                      sh "git config --global credential.helper '!echo password=$(GIT PASSWORD); echo' "
+                  }
+            }
+
+            stage('Build image using Packer') { 
+                when {
+                    branch 'master'
+                }
+                steps {
+                    sh "packer build packer.json"
+                }
+            }
+        }
+
+        post { 
+            always {
+                script {
+                    try {
+                        sh "git config --global --unset credential.username"
+                        sh "git config --global --unset credential.helper"
+                    } catch (Exception e) {}
+                  
+                    cleanlis()
+                }
+            }
+        }
+    }
+}
