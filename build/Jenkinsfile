@@ -41,7 +41,7 @@ def call(String cronFormat, agentLabel = "slave") {
                         sh "git config --global --unset credential.helper"
                     } catch (Exception e) {}
                   
-                    cleanlis()
+                    cleanws()
                 }
             }
         }
